@@ -1,0 +1,11 @@
+preregistered_validator_keys_mnemonic: "giant issue aisle success illegal bike spike question tent bar rely arctic volcano long crawl hungry vocal artwork sniff fantasy very lucky have athlete"
+num_validator_keys_per_node: 64
+network_id: "9223372235234235"
+deposit_contract_address: "0x00000000219ab540356cBB839Cbe05303d7705Fa"
+seconds_per_slot: 12
+genesis_delay: 10
+capella_fork_epoch: 2
+deneb_fork_epoch: 500
+prefunded_accounts:
+  - address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    balance: "1000000000000000000000000000" # 1 Billion ETH in WEI
