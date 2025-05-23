@@ -1,0 +1,95 @@
+# Example for running the file in your command line:
+# NAMESPACE=kt-solitary-cave IP=34.10.136.98 envsubst < loadbalancer-service.yml | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: el-loadbalancer-service-tcp
+  namespace: ${NAMESPACE}
+spec:
+  type: LoadBalancer
+  loadBalancerIP: ${IP}
+  selector:
+    kurtosistech.com.custom/ethereum-package.client-type: execution
+  ports:
+    # engine-rpc: 8551/tcp - execution layer
+    - name: engine-rpc
+      protocol: TCP
+      port: 8551
+      targetPort: 8551
+    # rpc: 8545/tcp - execution layer
+    - name: rpc
+      protocol: TCP
+      port: 8545
+      targetPort: 8545
+    # discovery: 30303 - execution layer
+    - name: tcp-discovery
+      protocol: TCP
+      port: 30303
+      targetPort: 30303
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: el-loadbalancer-service-udp
+  namespace: ${NAMESPACE}
+spec:
+  type: LoadBalancer
+  loadBalancerIP: ${IP}
+  selector:
+    kurtosistech.com.custom/ethereum-package.client-type: execution
+  ports:
+    # discovery: 30303 - execution layer
+    - name: udp-discovery
+      protocol: UDP
+      port: 30303
+      targetPort: 30303
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cl-loadbalancer-service-tcp
+  namespace: ${NAMESPACE}
+spec:
+  selector:
+    kurtosistech.com.custom/ethereum-package.client-type: beacon
+  type: LoadBalancer
+  loadBalancerIP: ${IP}
+  ports:
+    # http: 4000/tcp - consensus layer
+    - name: http
+      port: 4000
+      targetPort: 4000
+      protocol: TCP
+    # metrics: 5054/tcp - consensus layer
+    - name: metrics
+      port: 5054
+      targetPort: 5054
+      protocol: TCP
+    # NOTE: We are not using this because it causes a conflict with TCP port 9000 discovery
+    # discovery: 9000 - consensus layer
+    # - name: discovery
+    #   port: 9000
+    #   targetPort: 9000
+    #   protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cl-loadbalancer-service-udp
+  namespace: ${NAMESPACE}
+spec:
+  type: LoadBalancer
+  loadBalancerIP: ${IP}
+  selector:
+    kurtosistech.com.custom/ethereum-package.client-type: beacon
+  ports:
+    # discovery: 9000 - consensus layer
+    - name: discovery
+      port: 9000
+      targetPort: 9000
+      protocol: UDP
+    # quic discovery: 9001 - consensus layer
+    - name: quic-discovery
+      port: 9001
+      targetPort: 9001
+      protocol: UDP

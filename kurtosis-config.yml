@@ -1,0 +1,19 @@
+# This file should be copied to your kurtosis config path.
+# Refer to the Readme for more detail
+config-version: 2
+should-send-metrics: true
+kurtosis-clusters:
+  docker:
+    type: "docker"
+  minikube:
+    type: "kubernetes"
+    config:
+      kubernetes-cluster-name: "minikube"
+      storage-class: "standard"
+      enclave-size-in-megabytes: 10
+  cloud:
+    type: "kubernetes"
+    config:
+      kubernetes-cluster-name: "ethereum-cluster"
+      storage-class: "standard"
+      enclave-size-in-megabytes: 10000
