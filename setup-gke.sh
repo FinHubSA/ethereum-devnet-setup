@@ -6,7 +6,7 @@ BILLING_ACCOUNT_ID="0162E1-2DD205-117CC2"  # e.g. 012345-6789AB-CDEF01
 REGION="us-central1"
 ZONE="us-central1-c"
 CLUSTER_NAME="ethereum-cluster"
-LOADBALANCER_IP_NAME="el-loadbalancer-ip-1"
+LOADBALANCER_IP_NAME="el-loadbalancer-ip"
 
 # === 1. Create GCP Project ===
 if gcloud projects describe "$PROJECT_ID" &> /dev/null; then
