@@ -192,7 +192,39 @@ Now we'll deploy a loadbalancer service that will expose the necessary ports for
      }
      ```
 
+## Deploy a participating node 
+Now that we have deployed the initial nodes of the network we can deploy additional nodes onto the network. We'll use an already existing dev-net [uct_finhub-devnet-1](https://github.com/FinHubSA/uct_finhub-devnets/tree/main/network-configs/devnet-1) as an example.
+1. To deploy a node that syncs to an existing network we will add some parameters to the network_params.yaml file
+    - `network:` -  This parameter will specify the dev network the nodes sync to.
+      - The `devnet-1` in the network name is a key word that lets the [ethereum-package](https://github.com/ethpandaops/ethereum-package) know that the created nodes will synch to `devnet-1` of the `uct-finhub-devenets` repository.
+        > Example: For the network: `verkle-gen-devnet-7` there is the github repository [verkle-gen-devnets](https://github.com/ethpandaops/verkle-devnets) from the ethpandaops github account.
+        
+        > There is also a `network-configs` folder which containes the [gen-devnet-7](https://github.com/ethpandaops/verkle-devnets/tree/master/network-configs/gen-devnet-7/metadata) metadata that the ethereum-package will use to bootstrap from and sync the created nodes to.
+    - `devnet_repo:` - This parameter specifies which github account to search for to find the dev network specified by the `network` parameter.
+      - The default account is [ethpandaops](https://github.com/ethpandaops) which runs the `verkle-gen-devnets`.
+    - `nat_exit_ip:` - Comment this line out so that there are no conflicts with the initial nodes.
+    - `checkpoint_sync_enabled:` - This is for the consensus node to sync up to a bootstrap node specified by the end-point `checkpoint_sync_url`.
+    - `checkpoint_sync_url:` - URL for the consensus client that will be used for performing a checkpoint sync.
+2. To deploy a node on our uct_finhub-devnet-1 network:
+   - Remove the comment out the comments from the lines with this comment `** UNCOMMENT **`
+   - Comment out any lines whihc have this comment at the end of the line `** COMMENT OUT **`
+   - Then run the ethereum kurtosis package as below:
+     ```bash
+     kurtosis run github.com/ethpandaops/ethereum-package --args-file ./network_params.yaml --image-download always
+     ```
+4. To deploy to a new network:
+   - Create a github repository that will contain the network-configs of the devnets you'll deploy e.g. my-private-devnets
+   - Create folder in called `network-configs`
+   - Create a folder for the dev network e.g. `devnet-1` and create a folder called `metadata` in the devnet-1 folder.
+   - We need the genesis files from an existing network node. Run the command below to get these files:
+     ```bash
+     kurtosis files download alert-bay el_cl_genesis_data ~/Downloads
+     ```
+   - Look in the `Downloads` folder for the downloaded files. Copy the following files into the `metadata` folder created in the previous steps:
+     - `chainspec.json`, `genesis_validators_root.txt`, `deposit_contract_block_hash.txt`, `genesis.json`, `config.yaml`, `deposit_contract.txt`, `bootstrap_nodes.txt`, `genesis.ssz`, `deposit_contract_block.txt`
+    - Create an additional file called `enodes.txt`
+    - In the `bootstap_nodes.txt` put in the enr of the consensus node. This is found by running the command in part 4 of the section `Deploy a loadbalancer service`
+    - In the `enodes.txt` put in the enode ID of the consensus node. This is also found by running the command in part 4 of the section `Deploy a loadbalancer service`
+     
 
 
-## Deploy a participating node (optional)
-1. 
