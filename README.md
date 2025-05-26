@@ -32,7 +32,8 @@ To create a new testnet using the infrastructure scripts in this repository, fol
   - Creates a standard GKE cluster needed for deploying the necessary artifacts by `kurtosis`
   - Fetches authentication credentials for the created GKE cluster and updates your local `kubeconfig` file (usually at `~/.kube/config`) with the cluster's endpoint and credentials.
       - This enables us to execute commands on our GKE cluster using the `kubectl` cli
-  - Creates a static IP address for the loadbalancer we'll create to access our Ethereum Nodes
+  - Creates a static IP address for the loadbalancer we'll create to access our Ethereum Nodes.
+    > Note: Take note of this IP address because it'll be used in step 2 of Spinup initial network nodes section.
 
 ## Setup Kubernetes Commandline Tool (Kubectl)
 1. Install kubectl as detailed [here](https://kubernetes.io/docs/tasks/tools/#kubectl)
@@ -44,8 +45,8 @@ To create a new testnet using the infrastructure scripts in this repository, fol
     ```
   - If code is not recognized, you need to enable the code command in your shell:
     - Open VS Code.
-    - Press Cmd + Shift + P to open the Command Palette.
-    - Type "Shell Command: Install 'code' command in PATH" and hit Enter.
+    - Press `Cmd + Shift + P` to open the Command Palette.
+    - Type `Shell Command: Install 'code' command in PATH` and hit Enter.
     - Restart Terminal and try again
 
 ## Setup Kurtosis
@@ -74,11 +75,124 @@ To create a new testnet using the infrastructure scripts in this repository, fol
 
 # Deploying Services
 
+We are going to follow this guide for [spinning up a private network using kurtosis](https://geth.ethereum.org/docs/fundamentals/kurtosis). The difference is we are spinning it up on a GKE cluster instead of a locally using docker.
+
 ## Spinup initial network nodes
-1. 
+1. We'll setup a few parameters in the file `network_params.yaml`. You can check the [ethereum kurtuosis package](https://github.com/ethpandaops/ethereum-package?tab=readme-ov-file#configuration) for more details on the parameters you can set.
+    - Change the `network_id` parameter to be some unique number. Find more details here for [choosing a network ID](https://geth.ethereum.org/docs/fundamentals/kurtosis#choosing-network-id).
+    - Change the `nat_exit_ip` to be the static IP address from step 2 of the `Setup a GKE cluster` section.
+2. To spin up the network on our Kubernetes cluster we'll run the command below. You can find more details on the [spinning up the network guide](https://geth.ethereum.org/docs/fundamentals/kurtosis#spinning-up-the-network)
+    ```bash
+    kurtosis run github.com/ethpandaops/ethereum-package --args-file ./network_params.yaml --image-download always
+    ```
+    - Copy the name of the enclave that was created when you ran the command above. It looks like the image below. The enclave is called `bold-volcano` in this case:
+<div align="center"><img width="710" alt="image" src="https://github.com/user-attachments/assets/06e0122b-8278-4355-9cf5-b9517a39ed6d" /></div>
 
 ## Deploy a loadbalancer service
-1. 
+Now we'll deploy a loadbalancer service that will expose the necessary ports for our consensus and execution clients to connect with other peers and to act as a bootstrap node for other nodes that request to join the dev network.
+1. Get the name of the `kurtosis enclave` with the nodes created by kurtosis from the output generated in part 2 of the previous section e.g. bold-volcano.
+2. The GKE cluster name space name will be `kt-<enclave name>` e.g. kt-bold-volcano
+3. Run the command below to create the loadbalancer service. Use the GKE cluster name space from above as the first parameter and the IP address from step 2 of the `Setup a GKE cluster` as the second parameter:
+   ```bash
+   NAMESPACE=<gke_cluster_namespace> IP=<loadbalancer_static_ip> envsubst < loadbalancer-service.yml | kubectl apply -f -
+   ```
+   - This command will start a loadbalancer service enabling other consensus nodes to bootstrap from the consensus client using port 4000 and other execution nodes to bootstrap from the execution node using port 30303.
+4. Check the status of your nodes.
+   - To check the status of your `execution` node run this curl request:
+     ```bash
+     curl -s -X POST http://<loadbalancer_static_ip>:8545  \                                                                   
+      -H "Content-Type: application/json" \
+      --data '{
+        "jsonrpc":"2.0",
+        "method":"admin_nodeInfo",
+        "params":[],
+        "id":1
+      }'
+     ```
+     The output will be similar to the one below. Take note of the `enode` field. It is used for bootstrapping other execution clients/nodes.
+     ```json
+     {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "id": "bbb3b34026512b38c21ef0eb8f513b523f6f8f96ce83b02a1bbeaa4ae00aea84",
+        "name": "Geth/v1.15.12-unstable-7e792546-20250516/linux-amd64/go1.24.3",
+        "enode": "enode://4778ea8ed02e9cb2eb40985ed0f3218d66781cb28806024a80824b6cc5dddd872c1e14e8a82c329fe952d01c723e0fbe44fab429b561c63d6c58d137cc7c447b@34.10.136.98:30303",
+        "enr": "enr:-KO4QFuIfBvf3fkbzVGchc9wm5N3e12e6SKS1QvkeOnIUF3aUL52mNJyONd4Q2w438KJ5gtrHb-1_Fdo_ADwuf6OWy-GAZb9IdOqg2V0aMfGhNK_fmaAgmlkgnY0gmlwhCIKiGKJc2VjcDI1NmsxoQNHeOqO0C6csutAmF7Q8yGNZngcsogGAkqAgktsxd3dh4RzbmFwwIN0Y3CCdl-DdWRwgnZf",
+        "ip": "34.10.136.98",
+        "ports": {
+          "discovery": 30303,
+          "listener": 30303
+        },
+        "listenAddr": "[::]:30303",
+        "protocols": {
+          "eth": {
+            "network": 9223372036854,
+            "genesis": "0x03bcfa40d4dbfa5723664ae626b00f6b6d4e071da994012c8c4349f720d1ad57",
+            "config": {
+              "chainId": 9223372036854,
+              "homesteadBlock": 0,
+              "eip150Block": 0,
+              "eip155Block": 0,
+              "eip158Block": 0,
+              "byzantiumBlock": 0,
+              "constantinopleBlock": 0,
+              "petersburgBlock": 0,
+              "istanbulBlock": 0,
+              "berlinBlock": 0,
+              "londonBlock": 0,
+              "mergeNetsplitBlock": 0,
+              "shanghaiTime": 0,
+              "cancunTime": 0,
+              "pragueTime": 0,
+              "terminalTotalDifficulty": 0,
+              "depositContractAddress": "0x00000000219ab540356cbb839cbe05303d7705fa",
+              "blobSchedule": {
+                "cancun": {
+                  "target": 3,
+                  "max": 6,
+                  "baseFeeUpdateFraction": 3338477
+                },
+                "prague": {
+                  "target": 6,
+                  "max": 9,
+                  "baseFeeUpdateFraction": 5007716
+                }
+              }
+            },
+            "head": "0x4056c1cd3763371d5c213c9677f8a80a0db4e5edf071d1848ee5a5348d4f96da"
+          },
+          "snap": {}
+        }
+      }
+     }
+     ```
+   - To check the status of your `consensus` node run this curl request:
+     ```bash
+     curl http://<loadbalancer_static_ip>:4000/eth/v1/node/identity
+     ```
+     The output will be similar to the one below. Take note of the `enr` field. It is used for bootstrapping other consensus clients/nodes:
+     ```json
+     {
+      "data": {
+        "peer_id": "16Uiu2HAmVG45m3hxShsGJVhPQbPmz2roL1soSp3JakZoG4iPbLob",
+        "enr": "enr:-        N24QGbQYFILLtFjsCu_as8lgMC2hj_8Sgm9vD4yzui0rtpHLsK26EUXJsSoMiekLpm_95dgBoquqiWd5jwjG9CYuGEHh2F0dG5ldHOIAMAAAAAAAACGY2xpZW500YpMaWdodGhvdXNlhTcuMC4xhGV0aDKQB1JOe2AAADj__________4JpZIJ2NIJpcIQiCohihHF1aWOCIymJc2VjcDI1NmsxoQP2tooJWZ8X12lA2NzIS6jK4YVwXdmZae99q9_IPceVyohzeW5jbmV0cw-DdGNwgiMog3VkcIIjKA",
+        "p2p_addresses": [
+          "/ip4/34.10.136.98/tcp/9000/p2p/16Uiu2HAmVG45m3hxShsGJVhPQbPmz2roL1soSp3JakZoG4iPbLob"
+        ],
+        "discovery_addresses": [
+          "/ip4/34.10.136.98/udp/9000/p2p/16Uiu2HAmVG45m3hxShsGJVhPQbPmz2roL1soSp3JakZoG4iPbLob"
+        ],
+        "metadata": {
+          "seq_number": "6",
+          "attnets": "0x00c0000000000000",
+          "syncnets": "0x0f"
+        }
+      }
+     }
+     ```
+
+
 
 ## Deploy a participating node (optional)
 1. 
