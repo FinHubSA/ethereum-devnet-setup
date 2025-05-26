@@ -13,13 +13,13 @@ To create a new testnet using the infrastructure scripts in this repository, fol
 
 2. Run the setup-gke.sh script
 - Make the script executable
-```bash
-chmod +x setup-gke.sh
-```
+  ```bash
+  chmod +x setup-gke.sh
+  ```
 - Run the script using the billing account ID you copied from the first step
-```bash
-./setup-gke.sh <billing_acc_id>
-```
+  ```bash
+  ./setup-gke.sh <billing_acc_id>
+  ```
 > Note: You can change other settings from the defaults such as `region` and `zone` directly in the script
 
 > Note: Wait a minute or two for the enabled API's enabling to propagate if you get this error:
@@ -30,22 +30,47 @@ chmod +x setup-gke.sh
   - Creates a new project on google cloud console or dashboard called `ethereum-private-test-network`
   - Enables `Artifact Registry` and Google `Kubernetes Engine` APIs.
   - Creates a standard GKE cluster needed for deploying the necessary artifacts by `kurtosis`
-  - Fetches authentication credentials for the created GKE cluster and updates your local `kubeconfig` file (usually at ~/.kube/config) with the cluster's endpoint and credentials.
+  - Fetches authentication credentials for the created GKE cluster and updates your local `kubeconfig` file (usually at `~/.kube/config`) with the cluster's endpoint and credentials.
       - This enables us to execute commands on our GKE cluster using the `kubectl` cli
   - Creates a static IP address for the loadbalancer we'll create to access our Ethereum Nodes
 
-3. Install kubectl as detailed [here](https://kubernetes.io/docs/tasks/tools/#kubectl)
-> Note: Step 2 has already updated you `kubeconfig`
-> 
- 
-
-
-
 ## Setup Kubernetes Commandline Tool (Kubectl)
-1. 
+1. Install kubectl as detailed [here](https://kubernetes.io/docs/tasks/tools/#kubectl)
+- Step 2 in the previous section has already updated `kubeconfig` file for you. To view it with VS code:
+  - Open VS code and open a terminal in VS code
+  - Use VS Code to open the file: using the command below:
+    ```bash
+    code ~/.kube/config
+    ```
+  - If code is not recognized, you need to enable the code command in your shell:
+    - Open VS Code.
+    - Press Cmd + Shift + P to open the Command Palette.
+    - Type "Shell Command: Install 'code' command in PATH" and hit Enter.
+    - Restart Terminal and try again
 
 ## Setup Kurtosis
-1. 
+1. Install Kurtosis following this [guide](https://docs.kurtosis.com/install).
+> Note: On a macbook you must have Xcode > 16. To update, go to system settings -> software update.
+
+2. Configure your kurtosis file
+  - Get your local kurtosis config yml path by running the command below:
+    ```bash
+    kurtosis config path
+    ```
+  - Navigate to the path shown and open the `kurtosis-config.yml` file using the nano command-line text editor:
+    ```bash
+    nano <path/kurtosis/kurtosis-config.yml>
+    ```
+  - Copy the `kurtosis-config.yml` file that is in this repository and put it in that file.
+  > Note: Change the kubernetes-cluster-name under the cloud section if it is different
+  - Run the command below to setup kurtosis to use the cloud kubernetes cluser:
+    ```bash
+    kurtosis cluster set cloud
+    ```
+  - Run the command below in a separate terminal. It acts as a middle man between your computer's ports and your services deployed on Kubernetes ports and has to stay running as a separate process.
+    ```bash
+    kurtosis gateway
+    ```
 
 # Deploying Services
 
