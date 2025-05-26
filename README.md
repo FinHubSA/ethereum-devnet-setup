@@ -9,7 +9,7 @@ To create a new testnet using the infrastructure scripts in this repository, fol
 
 ## Setup a GKE cluster
 1. [Install](https://cloud.google.com/sdk/docs/install-sdk) gcloud cli
-> Note: After enabling billing, copy the billing account ID.
+    > Note: After enabling billing, copy the billing account ID.
 
 2. Run the setup-gke.sh script
 - Make the script executable
@@ -20,11 +20,11 @@ To create a new testnet using the infrastructure scripts in this repository, fol
   ```bash
   ./setup-gke.sh <billing_acc_id>
   ```
-> Note: You can change other settings from the defaults such as `region` and `zone` directly in the script
+  > Note: You can change other settings from the defaults such as `region` and `zone` directly in the script
 
-> Note: Wait a minute or two for the enabled API's enabling to propagate if you get this error:
+  > Note: Wait a minute or two for the enabled API's enabling to propagate if you get this error:
 
-> `ERROR: (gcloud.container.clusters.create) ResponseError: code=403, message=Kubernetes Engine API has not been used in project`
+  > `ERROR: (gcloud.container.clusters.create) ResponseError: code=403, message=Kubernetes Engine API has not been used in project`
 
 - The script does a few things:
   - Creates a new project on google cloud console or dashboard called `ethereum-private-test-network`
@@ -50,7 +50,7 @@ To create a new testnet using the infrastructure scripts in this repository, fol
 
 ## Setup Kurtosis
 1. Install Kurtosis following this [guide](https://docs.kurtosis.com/install).
-> Note: On a macbook you must have Xcode > 16. To update, go to system settings -> software update.
+    > Note: On a macbook you must have Xcode > 16. To update, go to system settings -> software update.
 
 2. Configure your kurtosis file
   - Get your local kurtosis config yml path by running the command below:
@@ -62,7 +62,7 @@ To create a new testnet using the infrastructure scripts in this repository, fol
     nano <path/kurtosis/kurtosis-config.yml>
     ```
   - Copy the `kurtosis-config.yml` file that is in this repository and put it in that file.
-  > Note: Change the kubernetes-cluster-name under the cloud section if it is different
+    > Note: Change the kubernetes-cluster-name under the cloud section if it is different
   - Run the command below to setup kurtosis to use the cloud kubernetes cluser:
     ```bash
     kurtosis cluster set cloud
