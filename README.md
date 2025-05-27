@@ -212,7 +212,7 @@ Now that we have deployed the initial nodes of the network we can deploy additio
      ```bash
      kurtosis run github.com/ethpandaops/ethereum-package --args-file ./network_params.yaml --image-download always
      ```
-4. To deploy to a new network:
+3. To deploy to a new network:
    - Create a github repository that will contain the network-configs of the devnets you'll deploy e.g. my-private-devnets
    - Create folder in called `network-configs`
    - Create a folder for the dev network e.g. `devnet-1` and create a folder called `metadata` in the devnet-1 folder.
@@ -223,8 +223,14 @@ Now that we have deployed the initial nodes of the network we can deploy additio
    - Look in the `Downloads` folder for the downloaded files. Copy the following files into the `metadata` folder created in the previous steps:
      - `chainspec.json`, `genesis_validators_root.txt`, `deposit_contract_block_hash.txt`, `genesis.json`, `config.yaml`, `deposit_contract.txt`, `bootstrap_nodes.txt`, `genesis.ssz`, `deposit_contract_block.txt`
     - Create an additional file called `enodes.txt`
-    - In the `bootstap_nodes.txt` put in the enr of the consensus node. This is found by running the command in part 4 of the section `Deploy a loadbalancer service`
-    - In the `enodes.txt` put in the enode ID of the consensus node. This is also found by running the command in part 4 of the section `Deploy a loadbalancer service`
+    - In the `bootstap_nodes.txt` put in the enr of the consensus node. This is found by running the command for the `execution` node status in part 4 of the section `Deploy a loadbalancer service`
+    - In the `enodes.txt` put in the enode ID of the consensus node. This is also found by running the command for the `consensus` node status in part 4 of the section `Deploy a loadbalancer service`
+    - Commit and push all your changes to the main branch. The [UCT Finhub Devnets](https://github.com/FinHubSA/uct_finhub-devnets/tree/main) repository is an example.
+      > Note: take a look at the `bootstap_nodes.txt` and the `enodes.txt` for an example of how they look
+    - Then run the ethereum kurtosis package as below to deploy and sync the nodes to your network:
+      ```bash
+      kurtosis run github.com/ethpandaops/ethereum-package --args-file ./network_params.yaml --image-download always
+      ```
      
 
 
