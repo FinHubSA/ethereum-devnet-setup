@@ -3,7 +3,7 @@
 apiVersion: v1
 clusters:
   - cluster:
-      certificate-authority-data: YOURKEY
+      certificate-authority-data: <YOURKEY>
       server: https://34.10.0.67
     name: gke_ethereum-private-test-network_us-central1_ethereum-network-cluster
 contexts:

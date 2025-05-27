@@ -17,7 +17,7 @@ additional_services:
   - dora
 port_publisher:
   # exposes the devnet loadbalancer IP for discoverability
-  # nat_exit_ip: 34.10.136.98
-  nat_exit_ip: 35.184.171.117
+  nat_exit_ip: 34.10.136.98 #** COMMENT OUT ** for devnet
+# nat_exit_ip: <devnet_nodes_loadbalancer_ip> #** UNCOMMENT ** for devnet
 # checkpoint_sync_enabled: true #** UNCOMMENT ** for devnet
 # checkpoint_sync_url: "http://34.10.136.98:4000" #** UNCOMMENT ** for devnet
