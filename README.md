@@ -33,7 +33,7 @@ To create a new testnet using the infrastructure scripts in this repository, fol
   - Fetches authentication credentials for the created GKE cluster and updates your local `kubeconfig` file (usually at `~/.kube/config`) with the cluster's endpoint and credentials.
       - This enables us to execute commands on our GKE cluster using the `kubectl` cli
   - Creates a static IP address for the loadbalancer we'll create to access our Ethereum Nodes.
-    > Note: Take note of this IP address because it'll be used in step 2 of Spinup initial network nodes section.
+    > Note: Take note of this IP address because it'll be used in step 2 of [Spinup initial network nodes](#spinup-initial-network-nodes) section.
 
 ## Setup Kubernetes Commandline Tool (Kubectl)
 1. Install kubectl as detailed [here](https://kubernetes.io/docs/tasks/tools/#kubectl)
