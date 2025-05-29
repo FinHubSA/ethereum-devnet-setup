@@ -27,12 +27,12 @@ To create a new testnet using the infrastructure scripts in this repository, fol
   > `ERROR: (gcloud.container.clusters.create) ResponseError: code=403, message=Kubernetes Engine API has not been used in project`
 
 - The script does a few things:
-  - Creates a new project on google cloud console or dashboard called `ethereum-private-test-network`
+  - Creates a new google cloud project called `ethereum-private-test-network`
   - Enables `Artifact Registry` and Google `Kubernetes Engine` APIs.
   - Creates a standard GKE cluster needed for deploying the necessary artifacts by `kurtosis`
   - Fetches authentication credentials for the created GKE cluster and updates your local `kubeconfig` file (usually at `~/.kube/config`) with the cluster's endpoint and credentials.
       - This enables us to execute commands on our GKE cluster using the `kubectl` cli
-  - Creates a static IP address for the loadbalancer we'll create to access our Ethereum Nodes.
+  - Creates a static IP address for the loadbalancer we'll create in the section `[Deploy a loadbalancer service](#deploy-a-loadbalancer-service)` to access our Ethereum Nodes.
     > Note: Take note of this IP address because it'll be used in step 2 of [Spinup initial network nodes](#spinup-initial-network-nodes) section.
 
 ## Setup Kubernetes Commandline Tool (Kubectl)
@@ -197,11 +197,11 @@ Now that we have deployed the initial nodes of the network we can deploy additio
 1. To deploy a node on our uct_finhub-devnet-1 network, follow the instructions on our [uct_finhub-devnets](https://github.com/FinHubSA/uct_finhub-devnets/tree/main) repository.
 2. To deploy to the network we have deployed in the [Spinup initial network nodes](#spinup-initial-network-nodes) section:
    - Create a github repository that will contain the network-configs of the devnets you'll deploy e.g. my-private-devnets
-   - Create folder in called `network-configs`
-   - Create a folder for the dev network e.g. `devnet-1` and create a folder called `metadata` in the devnet-1 folder.
+   - Create folder called `network-configs`
+   - Inside `network-configs` create a folder for the dev network e.g. `network-configs/devnet-1` and inside `network-configs/devnet-1` create a folder called `metadata`.
    - We need the genesis files from an existing network node. Run the command below to get these files:
      ```bash
-     kurtosis files download alert-bay el_cl_genesis_data ~/Downloads
+     kurtosis files download <enclave name> el_cl_genesis_data ~/Downloads
      ```
    - Look in the `Downloads` folder for the downloaded files. Copy the following files into the `metadata` folder created in the previous steps:
      - `chainspec.json`, `genesis_validators_root.txt`, `deposit_contract_block_hash.txt`, `genesis.json`, `config.yaml`, `deposit_contract.txt`, `bootstrap_nodes.txt`, `genesis.ssz`, `deposit_contract_block.txt`
