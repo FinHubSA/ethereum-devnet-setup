@@ -4,20 +4,13 @@
 participants:
   - el_type: geth
     el_log_level: "trace"
-    el_extra_labels: { "consensus_execution-client": "1" }
     cl_type: lighthouse
     cl_log_level: "trace"
-    cl_extra_labels: { "consensus_execution-client": "1" }
     count: 1
 network_params:
-  # network: "uct_finhub-devnet-1" #** UNCOMMENT ** for devnet
   network_id: "9223372036854"
-  # devnet_repo: "FinHubSA" #** UNCOMMENT ** for devnet
 additional_services:
   - dora
 port_publisher:
   # exposes the devnet loadbalancer IP for discoverability
-  nat_exit_ip: 34.10.136.98 #** COMMENT OUT ** for devnet
-# nat_exit_ip: <devnet_nodes_loadbalancer_ip> #** UNCOMMENT ** for devnet
-# checkpoint_sync_enabled: true #** UNCOMMENT ** for devnet
-# checkpoint_sync_url: "http://34.10.136.98:4000" #** UNCOMMENT ** for devnet
+  nat_exit_ip: 34.10.136.98
