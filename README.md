@@ -27,17 +27,17 @@ To create a new testnet using the infrastructure scripts in this repository, fol
   > `ERROR: (gcloud.container.clusters.create) ResponseError: code=403, message=Kubernetes Engine API has not been used in project`
 
 - The script does a few things:
-  - Creates a new project on google cloud console or dashboard called `ethereum-private-test-network`
+  - Creates a new google cloud project called `ethereum-private-test-network`
   - Enables `Artifact Registry` and Google `Kubernetes Engine` APIs.
   - Creates a standard GKE cluster needed for deploying the necessary artifacts by `kurtosis`
   - Fetches authentication credentials for the created GKE cluster and updates your local `kubeconfig` file (usually at `~/.kube/config`) with the cluster's endpoint and credentials.
       - This enables us to execute commands on our GKE cluster using the `kubectl` cli
-  - Creates a static IP address for the loadbalancer we'll create to access our Ethereum Nodes.
-    > Note: Take note of this IP address because it'll be used in step 2 of Spinup initial network nodes section.
+  - Creates a static IP address for the loadbalancer we'll create in the section `[Deploy a loadbalancer service](#deploy-a-loadbalancer-service)` to access our Ethereum Nodes.
+    > Note: Take note of this IP address because it'll be used in step 2 of [Spinup initial network nodes](#spinup-initial-network-nodes) section.
 
 ## Setup Kubernetes Commandline Tool (Kubectl)
 1. Install kubectl as detailed [here](https://kubernetes.io/docs/tasks/tools/#kubectl)
-- Step 2 in the previous section has already updated `kubeconfig` file for you. To view it with VS code:
+- Step 2 in the [previous](#setup-a-gke-cluster) section has already updated `kubeconfig` file for you. To view it with VS code:
   - Open VS code and open a terminal in VS code
   - Use VS Code to open the file: using the command below:
     ```bash
@@ -80,7 +80,7 @@ We are going to follow this guide for [spinning up a private network using kurto
 ## Spinup initial network nodes
 1. We'll setup a few parameters in the file `network_params.yaml`. You can check the [ethereum kurtuosis package](https://github.com/ethpandaops/ethereum-package?tab=readme-ov-file#configuration) for more details on the parameters you can set.
     - Change the `network_id` parameter to be some unique number. Find more details here for [choosing a network ID](https://geth.ethereum.org/docs/fundamentals/kurtosis#choosing-network-id).
-    - Change the `nat_exit_ip` to be the static IP address from step 2 of the `Setup a GKE cluster` section.
+    - Change the `nat_exit_ip` to be the static IP address from step 2 of the [Setup a GKE cluster](#setup-a-gke-cluster) section.
 2. To spin up the network on our Kubernetes cluster we'll run the command below. You can find more details on the [spinning up the network guide](https://geth.ethereum.org/docs/fundamentals/kurtosis#spinning-up-the-network)
     ```bash
     kurtosis run github.com/ethpandaops/ethereum-package --args-file ./network_params.yaml --image-download always
@@ -90,7 +90,7 @@ We are going to follow this guide for [spinning up a private network using kurto
 
 ## Deploy a loadbalancer service
 Now we'll deploy a loadbalancer service that will expose the necessary ports for our consensus and execution clients to connect with other peers and to act as a bootstrap node for other nodes that request to join the dev network.
-1. Get the name of the `kurtosis enclave` with the nodes created by kurtosis from the output generated in part 2 of the previous section e.g. bold-volcano.
+1. Get the name of the `kurtosis enclave` with the nodes created by kurtosis from the output generated in part 2 of the [previous](#spinup-initial-network-nodes) section e.g. bold-volcano.
 2. The GKE cluster name space name will be `kt-<enclave name>` e.g. kt-bold-volcano
 3. Run the command below to create the loadbalancer service. Use the GKE cluster name space from above as the first parameter and the IP address from step 2 of the `Setup a GKE cluster` as the second parameter:
    ```bash
@@ -194,37 +194,20 @@ Now we'll deploy a loadbalancer service that will expose the necessary ports for
 
 ## Deploy a participating node 
 Now that we have deployed the initial nodes of the network we can deploy additional nodes onto the network. We'll use an already existing dev-net [uct_finhub-devnet-1](https://github.com/FinHubSA/uct_finhub-devnets/tree/main/network-configs/devnet-1) as an example.
-1. To deploy a node that syncs to an existing network we will add some parameters to the network_params.yaml file
-    - `network:` -  This parameter will specify the dev network the nodes sync to.
-      - The `devnet-1` in the network name is a key word that lets the [ethereum-package](https://github.com/ethpandaops/ethereum-package) know that the created nodes will synch to `devnet-1` of the `uct-finhub-devenets` repository.
-        > Example: For the network: `verkle-gen-devnet-7` there is the github repository [verkle-gen-devnets](https://github.com/ethpandaops/verkle-devnets) from the ethpandaops github account.
-        
-        > There is also a `network-configs` folder which containes the [gen-devnet-7](https://github.com/ethpandaops/verkle-devnets/tree/master/network-configs/gen-devnet-7/metadata) metadata that the ethereum-package will use to bootstrap from and sync the created nodes to.
-    - `devnet_repo:` - This parameter specifies which github account to search for to find the dev network specified by the `network` parameter.
-      - The default account is [ethpandaops](https://github.com/ethpandaops) which runs the `verkle-gen-devnets`.
-    - `nat_exit_ip:` - Comment this line out so that there are no conflicts with the initial nodes.
-    - `checkpoint_sync_enabled:` - This is for the consensus node to sync up to a bootstrap node specified by the end-point `checkpoint_sync_url`.
-    - `checkpoint_sync_url:` - URL for the consensus client that will be used for performing a checkpoint sync.
-2. To deploy a node on our uct_finhub-devnet-1 network:
-   - Remove the comment out the comments from the lines with this comment `** UNCOMMENT **`
-   - Comment out any lines whihc have this comment at the end of the line `** COMMENT OUT **`
-   - Then run the ethereum kurtosis package as below:
-     ```bash
-     kurtosis run github.com/ethpandaops/ethereum-package --args-file ./network_params.yaml --image-download always
-     ```
-3. To deploy to a new network:
+1. To deploy a node on our uct_finhub-devnet-1 network, follow the instructions on our [uct_finhub-devnets](https://github.com/FinHubSA/uct_finhub-devnets/tree/main) repository.
+2. To deploy to the network we have deployed in the [Spinup initial network nodes](#spinup-initial-network-nodes) section:
    - Create a github repository that will contain the network-configs of the devnets you'll deploy e.g. my-private-devnets
-   - Create folder in called `network-configs`
-   - Create a folder for the dev network e.g. `devnet-1` and create a folder called `metadata` in the devnet-1 folder.
+   - Create folder called `network-configs`
+   - Inside `network-configs` create a folder for the dev network e.g. `network-configs/devnet-1` and inside `network-configs/devnet-1` create a folder called `metadata`.
    - We need the genesis files from an existing network node. Run the command below to get these files:
      ```bash
-     kurtosis files download alert-bay el_cl_genesis_data ~/Downloads
+     kurtosis files download <enclave name> el_cl_genesis_data ~/Downloads
      ```
    - Look in the `Downloads` folder for the downloaded files. Copy the following files into the `metadata` folder created in the previous steps:
      - `chainspec.json`, `genesis_validators_root.txt`, `deposit_contract_block_hash.txt`, `genesis.json`, `config.yaml`, `deposit_contract.txt`, `bootstrap_nodes.txt`, `genesis.ssz`, `deposit_contract_block.txt`
     - Create an additional file called `enodes.txt`
-    - In the `bootstap_nodes.txt` put in the enr of the consensus node. This is found by running the command for the `execution` node status in part 4 of the section `Deploy a loadbalancer service`
-    - In the `enodes.txt` put in the enode ID of the consensus node. This is also found by running the command for the `consensus` node status in part 4 of the section `Deploy a loadbalancer service`
+    - In the `bootstap_nodes.txt` put in the enr of the consensus node. This is found by running the command for the `execution` node status in part 4 of the [Deploy a loadbalancer service](#deploy-a-loadbalancer-service) section 
+    - In the `enodes.txt` put in the enode ID of the consensus node. This is also found by running the command for the `consensus` node status in part 4 of the [Deploy a loadbalancer service](#deploy-a-loadbalancer-service) section.
     - Commit and push all your changes to the main branch. The [UCT Finhub Devnets](https://github.com/FinHubSA/uct_finhub-devnets/tree/main) repository is an example.
       > Note: take a look at the `bootstap_nodes.txt` and the `enodes.txt` for an example of how they look
     - Then run the ethereum kurtosis package as below to deploy and sync the nodes to your network:
