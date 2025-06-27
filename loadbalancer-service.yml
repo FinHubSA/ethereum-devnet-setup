@@ -93,3 +93,19 @@ spec:
       port: 9001
       targetPort: 9001
       protocol: UDP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dora-loadbalancer-service-tcp
+  namespace: ${NAMESPACE}
+spec:
+  type: LoadBalancer
+  loadBalancerIP: ${IP}
+  selector:
+    kurtosistech.com/id: dora
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP

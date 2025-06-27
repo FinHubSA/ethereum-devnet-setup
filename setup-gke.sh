@@ -2,11 +2,37 @@
 
 # === CONFIGURATION ===
 PROJECT_ID="ethereum-test-network"
-BILLING_ACCOUNT_ID=$1 # e.g. 0162E1-2DD205-117CC2
-REGION="us-central1"
-ZONE="us-central1-c"
-CLUSTER_NAME="ethereum-cluster"
-LOADBALANCER_IP_NAME="loadbalancer-ip"
+BILLING_ACCOUNT_ID="" # e.g. 0162E1-2DD205-117CC2
+REGION="africa-south1"
+ZONE="africa-south1-a"
+CLUSTER_NAME="uzh-ethereum-cluster"
+LOADBALANCER_IP_NAME="loadbalancer-ip-1"
+
+for ARG in "$@"; do
+  case $ARG in
+    --project_id=*)
+      PROJECT_ID="${ARG#*=}"
+      ;;
+    --billing_account_id=*)
+      BILLING_ACCOUNT_ID="${ARG#*=}"
+      ;;
+    --region=*)
+      REGION="${ARG#*=}"
+      ;;
+    --zone=*)
+      ZONE="${ARG#*=}"
+      ;;
+    --cluster_name=*)
+      CLUSTER_NAME="${ARG#*=}"
+      ;;
+    --loadbalancer_ip_name=*)
+      LOADBALANCER_IP_NAME="${ARG#*=}"
+      ;;
+    *)
+      echo "Unknown argument: $ARG"
+      ;;
+  esac
+done
 
 # === 1. Create GCP Project ===
 if gcloud projects describe "$PROJECT_ID" &> /dev/null; then
@@ -36,9 +62,11 @@ else
   echo "🚀 Creating GKE cluster '$CLUSTER_NAME'..."
   gcloud container clusters create "$CLUSTER_NAME" \
     --zone "$ZONE" \
+    --no-enable-autoupgrade \
+    --no-enable-autorepair \
     --num-nodes=3 \
     --enable-ip-alias \
-    --release-channel "regular" \
+    --release-channel "None" \
     --machine-type "e2-standard-2"
 fi
 
